@@ -1,6 +1,8 @@
 package org.saburto.logger;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.Random;
 
 import org.saburto.logger.entity.Log;
 import org.saburto.logger.entity.LogLevel;
@@ -24,12 +26,17 @@ public class ApplicationMain implements CommandLineRunner {
 
 	@Override
 	public void run(String... strings) throws Exception {
+		Calendar calendar = Calendar.getInstance();
+		LogLevel[] values = LogLevel.values();
 		for (int i = 0; i < 100; i++) {
 			Log entity = new Log();
-			entity.setDate(new Date());
-			entity.setLevel(LogLevel.INFO);
+			entity.setDate(calendar.getTime());
+			entity.setLevel(values[new Random().nextInt(values.length-1)]);
 			entity.setLogName("LogName" + i);
 			entity.setMessage("message number " + i);
+			
+			calendar.add(Calendar.MILLISECOND, Math.abs(new Random().nextInt()));
+			
 			repository.save(entity);
 		}
 	}

@@ -1,6 +1,7 @@
 package org.saburto.logger.services;
 
 import org.saburto.logger.entity.Log;
+import org.saburto.logger.entity.LogLevel;
 import org.saburto.logger.repository.LogRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -34,8 +35,23 @@ public class LogService {
 	public Iterable<Log> find(@RequestParam(value = "page", defaultValue = "0", required = false) int page,
             @RequestParam(value = "count", defaultValue = "10", required = false) int count,
             @RequestParam(value = "order", defaultValue = "ASC", required = false) Sort.Direction direction,
-            @RequestParam(value = "sort", defaultValue = "date", required = false) String sortProperty){
-		Page<Log> result = repository.findAll(new PageRequest(page, count, new Sort(direction, sortProperty)));
+            @RequestParam(value = "sort", defaultValue = "date", required = false) String sortProperty,
+            @RequestParam(value = "level", required = false) LogLevel level,
+            @RequestParam(value = "logName", required = false) String logname){
+		System.out.println(page);
+		PageRequest pageable = new PageRequest(page, count, new Sort(direction, sortProperty));
+		
+		Page<Log> result;
+		
+		if(level != null && logname != null){
+			result = repository.findByLogNameLikeAndLevel(logname, level, pageable);	
+		}else if (level != null){
+			result = repository.findByLevel(level, pageable);
+		}else if(logname != null){
+			result = repository.findByLogNameLike(logname, pageable);
+		}else{
+			result = repository.findAll(pageable);	
+		}
 		return result.getContent();
 	}
 	
